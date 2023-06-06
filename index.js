@@ -43,14 +43,27 @@ async function run() {
         })
 
         // cart collections
-
+        //  create cart
         app.post('/carts', async (req, res) => {
             const item = req.body;
             console.log(item);
             const result = await cartsCollection.insertOne(item);
             res.send(result);
         })
-
+        // get cart
+        app.get('/carts', async (req, res) => {
+            const email = req.query.email;
+            
+            if (!email) {
+                res.send([])
+            }
+            
+                const query = { email: email };
+                const result = await cartsCollection.find(query).toArray()
+                console.log(result,query);
+                res.send(result);
+            
+        })
 
 
 
