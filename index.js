@@ -30,12 +30,26 @@ async function run() {
 
 
         const menuCollection = client.db("mernDb").collection("menu2");
+        const reviewsCollection = client.db("mernDb").collection("reviews2");
+        const cartsCollection = client.db("mernDb").collection("carts2");
 
         app.get('/menu', async (req, res) => {
             const result = await menuCollection.find().toArray();
             res.send(result);
         })
+        app.get('/review', async (req, res) => {
+            const result = await reviewsCollection.find().toArray();
+            res.send(result);
+        })
 
+        // cart collections
+
+        app.post('/carts', async (req, res) => {
+            const item = req.body;
+            console.log(item);
+            const result = await cartsCollection.insertOne(item);
+            res.send(result);
+        })
 
 
 
