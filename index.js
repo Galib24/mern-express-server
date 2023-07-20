@@ -1,7 +1,8 @@
+require('dotenv').config()
 const express = require('express');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const app = express();
 const cors = require('cors');
-require('dotenv').config()
 const port = process.env.PORT || 5000;
 
 // middleware
@@ -11,7 +12,6 @@ app.use(express.json());
 
 // mongo connect
 
-const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.z8yqdyj.mongodb.net/?retryWrites=true&w=majority`;
 
 // Create a MongoClient with a MongoClientOptions object to set the Stable API version
@@ -23,68 +23,66 @@ const client = new MongoClient(uri, {
     }
 });
 
-async function run() {
+const dbConnect = async () => {
     try {
-        // Connect the client to the server	(optional starting in v4.7)
-        await client.connect();
+        client.connect();
+        console.log("Database Connected Successfully✅");
 
-
-        const menuCollection = client.db("mernDb").collection("menu2");
-        const reviewsCollection = client.db("mernDb").collection("reviews2");
-        const cartsCollection = client.db("mernDb").collection("carts2");
-
-        app.get('/menu', async (req, res) => {
-            const result = await menuCollection.find().toArray();
-            res.send(result);
-        })
-        app.get('/review', async (req, res) => {
-            const result = await reviewsCollection.find().toArray();
-            res.send(result);
-        })
-
-        // cart collections
-        //  create cart
-        app.post('/carts', async (req, res) => {
-            const item = req.body;
-            console.log(item);
-            const result = await cartsCollection.insertOne(item);
-            res.send(result);
-        })
-        // get cart
-        app.get('/carts', async (req, res) => {
-            const email = req.query.email;
-
-            if (!email) {
-                res.send([])
-            }
-
-            const query = { email: email };
-            const result = await cartsCollection.find(query).toArray()
-            console.log(result, query);
-            res.send(result);
-
-        })
-        // delete cart
-        app.delete('/carts/:id', async (req, res) => {
-            const id = req.params.id;
-            const query = { _id: new ObjectId(id) };
-            const result = await cartsCollection.deleteOne(query)
-            res.send(result);
-        })
-
-
-
-
-
-        // Send a ping to confirm a successful connection
-        await client.db("admin").command({ ping: 1 });
-        console.log("Pinged your deployment. You successfully connected to MongoDB!");
-    } finally {
-        // Ensures that the client will close when you finish/error
-        // await client.close();
+    } catch (error) {
+        console.log(error.name, error.message);
     }
 }
-run().catch(console.dir);
+dbConnect()
+
+
+const menuCollection = client.db("mernDb").collection("menu2");
+const reviewsCollection = client.db("mernDb").collection("reviews2");
+const cartsCollection = client.db("mernDb").collection("carts2");
+
+app.get('/menu', async (req, res) => {
+    const result = await menuCollection.find().toArray();
+    res.send(result);
+})
+app.get('/review', async (req, res) => {
+    const result = await reviewsCollection.find().toArray();
+    res.send(result);
+})
+
+// cart collections
+//  create cart
+app.post('/carts', async (req, res) => {
+    const item = req.body;
+    console.log(item);
+    const result = await cartsCollection.insertOne(item);
+    res.send(result);
+})
+// get cart
+app.get('/carts', async (req, res) => {
+    const email = req.query.email;
+
+    if (!email) {
+        res.send([])
+    }
+
+    const query = { email: email };
+    const result = await cartsCollection.find(query).toArray()
+    console.log(result, query);
+    res.send(result);
+
+})
+// delete cart
+app.delete('/carts/:id', async (req, res) => {
+    const id = req.params.id;
+    const query = { _id: new ObjectId(id) };
+    const result = await cartsCollection.deleteOne(query)
+    res.send(result);
+})
+
+
+
+
+
+
 
 
 
